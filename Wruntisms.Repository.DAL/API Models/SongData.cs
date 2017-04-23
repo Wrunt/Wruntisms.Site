@@ -1,6 +1,7 @@
 ﻿namespace Wruntisms.Repository.DAL
 {
     using System;
+    using System.Linq;
     using System.Runtime.Serialization;
     using Newtonsoft.Json;
 
@@ -34,6 +35,8 @@
 
         public SongData(int internalId)
         {
+            SongId = internalId;
+
             Initialize();
 
             SongRecord = GetDataRecordInternalKey();
@@ -41,6 +44,23 @@
             SongName = SongRecord.SongName;
             SongId = SongRecord.SongId;
             SongKey = SongRecord.SongKey;
+        }
+
+        public bool LoadRecord()
+        {
+            if (SongId != default(int))
+            {
+                SongRecord = GetDataRecordInternalKey();
+                return true;
+            }
+
+            if (!string.IsNullOrEmpty(SongKey))
+            {
+                SongRecord = GetDataRecordExternalKey();
+                return true;
+            }
+
+            return false;
         }
 
         protected bool Equals(SongData other)
@@ -71,6 +91,12 @@
             try
             {
                 SongRecord = InitializeDataRecord(SongRecord);
+                SongRecord.DateAdded = DateTime.Now;
+                Entity.Songs.Add(SongRecord);
+
+                Entity.SaveChanges();
+
+                SongId = SongRecord.SongId = GetDataRecordExternalKey().SongId;
             }
             catch (Exception e)
             {
@@ -85,7 +111,10 @@
         {
             try
             {
+                LoadRecord();
+                Entity.Songs.Remove(SongRecord);
 
+                Entity.SaveChanges();
             }
             catch (Exception e)
             {
@@ -93,37 +122,45 @@
                 return false;
             }
 
-            return GetDataRecordInternalKey() == null;
+            return !VerifyDataRecord(SongRecord);
         }
 
         public Song InitializeDataRecord()
         {
-            return InitializeDataRecord(new Song());
+            return InitializeDataRecord(SongRecord);
         }
 
         public Song InitializeDataRecord(Song record)
         {
-            throw new System.NotImplementedException();
+            if (record == null)
+                record = new Song();
+
+            record.SongName = SongName;
+            record.SongId = SongId;
+            record.SongKey = SongKey;
+
+            return record;
         }
 
-        public Song GetDataRecord(Action matchAction)
+        public Song GetDataRecord(Func<Song, bool> match)
         {
-            throw new System.NotImplementedException();
+            return Entity.Songs.FirstOrDefault(match);
         }
 
         public Song GetDataRecordInternalKey()
         {
-            throw new System.NotImplementedException();
+            return GetDataRecord(x => x.SongId == SongId);
         }
 
         public Song GetDataRecordExternalKey()
         {
-            throw new System.NotImplementedException();
+            return GetDataRecord(x => x.SongKey == SongKey);
         }
 
         public bool VerifyDataRecord(Song record)
         {
-            throw new NotImplementedException();
+            var rec = GetDataRecord(x => x.SongId == SongId && x.SongKey == SongKey && x.SongName == SongName);
+            return rec != null;
         }
         #endregion
         #region IJsonSerializable interface methods

@@ -31,7 +31,7 @@
         [TestMethod]
         public void InitializeDataRecordTest()
         {
-            var locId = internalId;
+            var locId = internalId + 1;
             var song = new SongData
             {
                 SongName = SongName,
@@ -39,12 +39,11 @@
                 SongKey = externalKey
             };
 
-            song.InitializeDataRecord();
-            var rec = song.SongRecord;
+            var rec = song.InitializeDataRecord();
 
-            Assert.Equals(song.SongName, rec.SongName);
-            Assert.Equals(song.SongId, rec.SongId);
-            Assert.Equals(song.SongKey, rec.SongKey);
+            Assert.AreEqual(song.SongName, rec.SongName);
+            Assert.AreEqual(song.SongId, rec.SongId);
+            Assert.AreEqual(song.SongKey, rec.SongKey);
         }
 
         [TestMethod]
@@ -62,7 +61,9 @@
 
             var copyObject = SongData.ToSong(jsonData);
 
-            Assert.Equals(song, copyObject);
+            Assert.AreEqual(song.SongName, copyObject.SongName);
+            Assert.AreEqual(song.SongId, copyObject.SongId);
+            Assert.AreEqual(song.SongKey, copyObject.SongKey);
         }
 
         [TestMethod]
@@ -76,7 +77,13 @@
                 SongKey = externalKey
             };
 
-            song.
+            Assert.IsTrue(song.CreateDataRecord());
+
+            Assert.IsTrue(song.VerifyDataRecord(song.SongRecord));
+
+            Assert.IsTrue(song.DeleteDataRecord());
+
+            Assert.IsFalse(song.VerifyDataRecord(song.SongRecord));
         }
     }
 }

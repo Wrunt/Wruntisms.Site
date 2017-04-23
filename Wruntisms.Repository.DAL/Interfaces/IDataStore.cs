@@ -41,9 +41,9 @@
         /// <summary>
         /// Gets data record from Database using passed action
         /// </summary>
-        /// <param name="matchAction">Action</param>
+        /// <param name="match">Match function</param>
         /// <returns>Data record</returns>
-        T GetDataRecord(Action matchAction);
+        T GetDataRecord(Func<T, bool> match);
         /// <summary>
         /// Gets data record using internal key
         /// </summary>
