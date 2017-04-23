@@ -1,0 +1,243 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl" Alias="Self" Namespace="GeneralModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012.Azure">
+        <EntityType Name="Playlists">
+          <Key>
+            <PropertyRef Name="PlaylistId" />
+          </Key>
+          <Property Name="PlaylistId" Nullable="false" StoreGeneratedPattern="Identity" Type="int" />
+          <Property Name="PlaylistName" MaxLength="255" Type="varchar" />
+          <Property Name="PlaylistKey" MaxLength="255" Type="varchar" />
+          <Property Name="DateAdded" Type="datetime" />
+          <Property Name="Deleted" Nullable="false" Type="bit" />
+        </EntityType>
+        <EntityType Name="Songs">
+          <Key>
+            <PropertyRef Name="SongId" />
+          </Key>
+          <Property Name="SongId" Nullable="false" StoreGeneratedPattern="Identity" Type="int" />
+          <Property Name="SongName" MaxLength="255" Type="varchar" />
+          <Property Name="SongKey" MaxLength="255" Type="varchar" />
+          <Property Name="DateAdded" Type="datetime" />
+          <Property Name="Deleted" Nullable="false" Type="bit" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'General.dbo.SongsInPlaylists' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="SongsInPlaylists">
+          <Key>
+            <PropertyRef Name="SongId" />
+            <PropertyRef Name="PlaylistId" />
+          </Key>
+          <Property Name="SongId" Nullable="false" Type="int" />
+          <Property Name="PlaylistId" Nullable="false" Type="int" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6013: The table/view 'General.dbo.SongsInPlaylists_V' does not have a primary key defined and no valid primary key could be inferred. This table/view has been excluded. To use the entity, you will need to review your schema, add the correct keys, and uncomment it.
+        <EntityType Name="SongsInPlaylists_V">
+          <Property Name="SongName" Type="varchar" MaxLength="255" />
+          <Property Name="SongAddedDt" Type="datetime" />
+          <Property Name="PlaylistName" Type="varchar" MaxLength="255" />
+          <Property Name="PlaylistKey" Type="varchar" MaxLength="255" />
+          <Property Name="PlaylistAddedDt" Type="datetime" />
+        </EntityType>-->
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'General.sys.database_firewall_rules' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="database_firewall_rules">
+          <Key>
+            <PropertyRef Name="id" />
+            <PropertyRef Name="name" />
+            <PropertyRef Name="start_ip_address" />
+            <PropertyRef Name="end_ip_address" />
+            <PropertyRef Name="create_date" />
+            <PropertyRef Name="modify_date" />
+          </Key>
+          <Property Name="id" Nullable="false" StoreGeneratedPattern="Identity" Type="int" />
+          <Property Name="name" Nullable="false" MaxLength="128" Type="nvarchar" />
+          <Property Name="start_ip_address" Nullable="false" MaxLength="45" Type="varchar" />
+          <Property Name="end_ip_address" Nullable="false" MaxLength="45" Type="varchar" />
+          <Property Name="create_date" Nullable="false" Type="datetime" />
+          <Property Name="modify_date" Nullable="false" Type="datetime" />
+        </EntityType>
+        <Association Name="FK_SongsInPlaylists_Playlists">
+          <End Type="Self.Playlists" Multiplicity="1" Role="Playlists" />
+          <End Type="Self.SongsInPlaylists" Multiplicity="*" Role="SongsInPlaylists" />
+          <ReferentialConstraint>
+            <Principal Role="Playlists">
+              <PropertyRef Name="PlaylistId" />
+            </Principal>
+            <Dependent Role="SongsInPlaylists">
+              <PropertyRef Name="PlaylistId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SongsInPlaylists_Songs">
+          <End Type="Self.Songs" Multiplicity="1" Role="Songs" />
+          <End Type="Self.SongsInPlaylists" Multiplicity="*" Role="SongsInPlaylists" />
+          <ReferentialConstraint>
+            <Principal Role="Songs">
+              <PropertyRef Name="SongId" />
+            </Principal>
+            <Dependent Role="SongsInPlaylists">
+              <PropertyRef Name="SongId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="GeneralModelStoreContainer">
+          <EntitySet Name="Playlists" EntityType="Self.Playlists" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Songs" EntityType="Self.Songs" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="SongsInPlaylists" EntityType="Self.SongsInPlaylists" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [SongsInPlaylists].[SongId] AS [SongId], 
+    [SongsInPlaylists].[PlaylistId] AS [PlaylistId]
+    FROM [dbo].[SongsInPlaylists] AS [SongsInPlaylists]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="database_firewall_rules" EntityType="Self.database_firewall_rules" store:Type="Views" store:Schema="sys">
+            <DefiningQuery>SELECT 
+    [database_firewall_rules].[id] AS [id], 
+    [database_firewall_rules].[name] AS [name], 
+    [database_firewall_rules].[start_ip_address] AS [start_ip_address], 
+    [database_firewall_rules].[end_ip_address] AS [end_ip_address], 
+    [database_firewall_rules].[create_date] AS [create_date], 
+    [database_firewall_rules].[modify_date] AS [modify_date]
+    FROM [sys].[database_firewall_rules] AS [database_firewall_rules]</DefiningQuery>
+          </EntitySet>
+          <AssociationSet Name="FK_SongsInPlaylists_Playlists" Association="Self.FK_SongsInPlaylists_Playlists">
+            <End EntitySet="Playlists" Role="Playlists" />
+            <End EntitySet="SongsInPlaylists" Role="SongsInPlaylists" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SongsInPlaylists_Songs" Association="Self.FK_SongsInPlaylists_Songs">
+            <End EntitySet="Songs" Role="Songs" />
+            <End EntitySet="SongsInPlaylists" Role="SongsInPlaylists" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="GeneralModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Playlist">
+          <Key>
+            <PropertyRef Name="PlaylistId" />
+          </Key>
+          <Property Name="PlaylistId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PlaylistName" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="PlaylistKey" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="DateAdded" Type="DateTime" Precision="3" />
+          <Property Name="Deleted" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="Songs" Relationship="Self.SongsInPlaylists" FromRole="Playlists" ToRole="Songs" />
+        </EntityType>
+        <EntityType Name="Song">
+          <Key>
+            <PropertyRef Name="SongId" />
+          </Key>
+          <Property Name="SongId" Nullable="false" annotation:StoreGeneratedPattern="Identity" Type="Int32" />
+          <Property Name="SongName" MaxLength="255" FixedLength="false" Unicode="false" Type="String" />
+          <Property Name="DateAdded" Precision="3" Type="DateTime" />
+          <Property Name="Deleted" Nullable="false" Type="Boolean" />
+          <NavigationProperty Name="Playlists" Relationship="Self.SongsInPlaylists" FromRole="Songs" ToRole="Playlists" />
+          <Property Name="SongKey" MaxLength="255" FixedLength="false" Unicode="false" Type="String" />
+        </EntityType>
+        <EntityType Name="database_firewall_rules">
+          <Key>
+            <PropertyRef Name="id" />
+            <PropertyRef Name="name" />
+            <PropertyRef Name="start_ip_address" />
+            <PropertyRef Name="end_ip_address" />
+            <PropertyRef Name="create_date" />
+            <PropertyRef Name="modify_date" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="name" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="start_ip_address" Type="String" MaxLength="45" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="end_ip_address" Type="String" MaxLength="45" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="create_date" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="modify_date" Type="DateTime" Nullable="false" Precision="3" />
+        </EntityType>
+        <Association Name="SongsInPlaylists">
+          <End Type="Self.Playlist" Multiplicity="*" Role="Playlists" />
+          <End Type="Self.Song" Multiplicity="*" Role="Songs" />
+        </Association>
+        <EntityContainer Name="WruntEntity" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Playlists" EntityType="Self.Playlist" />
+          <EntitySet Name="Songs" EntityType="Self.Song" />
+          <EntitySet Name="database_firewall_rules" EntityType="Self.database_firewall_rules" />
+          <AssociationSet Name="SongsInPlaylists" Association="Self.SongsInPlaylists">
+            <End EntitySet="Playlists" Role="Playlists" />
+            <End EntitySet="Songs" Role="Songs" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="GeneralModelStoreContainer" CdmEntityContainer="WruntEntity">
+          <EntitySetMapping Name="Playlists">
+            <EntityTypeMapping TypeName="GeneralModel.Playlist">
+              <MappingFragment StoreEntitySet="Playlists">
+                <ScalarProperty Name="PlaylistId" ColumnName="PlaylistId" />
+                <ScalarProperty Name="PlaylistName" ColumnName="PlaylistName" />
+                <ScalarProperty Name="PlaylistKey" ColumnName="PlaylistKey" />
+                <ScalarProperty Name="DateAdded" ColumnName="DateAdded" />
+                <ScalarProperty Name="Deleted" ColumnName="Deleted" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Songs">
+            <EntityTypeMapping TypeName="GeneralModel.Song">
+              <MappingFragment StoreEntitySet="Songs">
+                <ScalarProperty Name="SongKey" ColumnName="SongKey" />
+                <ScalarProperty Name="SongId" ColumnName="SongId" />
+                <ScalarProperty Name="SongName" ColumnName="SongName" />
+                <ScalarProperty Name="DateAdded" ColumnName="DateAdded" />
+                <ScalarProperty Name="Deleted" ColumnName="Deleted" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="database_firewall_rules">
+            <EntityTypeMapping TypeName="GeneralModel.database_firewall_rules">
+              <MappingFragment StoreEntitySet="database_firewall_rules">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="start_ip_address" ColumnName="start_ip_address" />
+                <ScalarProperty Name="end_ip_address" ColumnName="end_ip_address" />
+                <ScalarProperty Name="create_date" ColumnName="create_date" />
+                <ScalarProperty Name="modify_date" ColumnName="modify_date" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <AssociationSetMapping Name="SongsInPlaylists" TypeName="GeneralModel.SongsInPlaylists" StoreEntitySet="SongsInPlaylists">
+            <EndProperty Name="Playlists">
+              <ScalarProperty Name="PlaylistId" ColumnName="PlaylistId" />
+            </EndProperty>
+            <EndProperty Name="Songs">
+              <ScalarProperty Name="SongId" ColumnName="SongId" />
+            </EndProperty>
+          </AssociationSetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
