@@ -9,13 +9,13 @@
         private WruntEntity entity = new WruntEntity();
 
         private const string SongName = "This is only a test";
-        private readonly int internalId = int.MaxValue / 2;
+        private const int InternalId = int.MaxValue / 2;
         private readonly string externalKey = Guid.NewGuid().ToString();
         
         [TestMethod]
         public void InitializeTest()
         {
-            var locId = internalId;
+            var locId = InternalId;
             var song = new SongData
             {
                 SongName = SongName,
@@ -31,7 +31,7 @@
         [TestMethod]
         public void InitializeDataRecordTest()
         {
-            var locId = internalId + 1;
+            var locId = InternalId + 1;
             var song = new SongData
             {
                 SongName = SongName,
@@ -49,7 +49,7 @@
         [TestMethod]
         public void JsonTest()
         {
-            var locId = internalId + 2;
+            var locId = InternalId + 2;
             var song = new SongData
             {
                 SongName = SongName,
@@ -69,7 +69,7 @@
         [TestMethod]
         public void CreateAndDeleteTest()
         {
-            var locId = internalId + 3;
+            var locId = InternalId + 3;
             var song = new SongData
             {
                 SongName = SongName,
@@ -80,6 +80,8 @@
             Assert.IsTrue(song.CreateDataRecord());
 
             Assert.IsTrue(song.VerifyDataRecord(song.SongRecord));
+
+            Assert.IsTrue(song.MarkDataRecordDeleted());
 
             Assert.IsTrue(song.DeleteDataRecord());
 

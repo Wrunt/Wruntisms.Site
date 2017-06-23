@@ -28,6 +28,11 @@
         /// <returns></returns>
         bool DeleteDataRecord();
         /// <summary>
+        /// Marks data record as deleted
+        /// </summary>
+        /// <returns></returns>
+        bool MarkDataRecordDeleted();
+        /// <summary>
         /// Initializes a data record
         /// </summary>
         /// <returns></returns>
@@ -54,6 +59,22 @@
         /// </summary>
         /// <returns></returns>
         T GetDataRecordExternalKey();
+        /// <summary>
+        /// Gets deleted data record from Database using passed action
+        /// </summary>
+        /// <param name="match">Match function</param>
+        /// <returns>Data record</returns>
+        T GetDeletedDataRecord(Func<T, bool> match);
+        /// <summary>
+        /// Gets deleted data record using internal key
+        /// </summary>
+        /// <returns>Data record</returns>
+        T GetDeletedDataRecordInternalKey();
+        /// <summary>
+        /// Gets deleted data record using 
+        /// </summary>
+        /// <returns></returns>
+        T GetDeletedDataRecordExternalKey();
         /// <summary>
         /// Verifies data record in Database matches passed data record
         /// </summary>

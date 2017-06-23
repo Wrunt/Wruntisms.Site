@@ -3,8 +3,12 @@
     using System;
     using System.Linq;
     using System.Runtime.Serialization;
+    using log4net;
     using Newtonsoft.Json;
 
+    /// <summary>
+    /// Data Access Layer for Song database storage
+    /// </summary>
     [DataContract(Name = "song")]
     public class SongData : IDataStore<Song>, IJsonSerializable<SongData>
     {
@@ -16,6 +20,8 @@
         public string SongKey { get; set; }
 
         public Song SongRecord { get; private set; }
+
+        private static readonly ILog LogObj = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public SongData()
         {
@@ -48,6 +54,21 @@
 
         public bool LoadRecord()
         {
+            if (SongRecord.Deleted)
+            {
+                if (SongId != default(int))
+                {
+                    SongRecord = GetDeletedDataRecordInternalKey();
+                    return true;
+                }
+
+                if (!string.IsNullOrEmpty(SongKey))
+                {
+                    SongRecord = GetDeletedDataRecordExternalKey();
+                    return true;
+                }
+            }
+
             if (SongId != default(int))
             {
                 SongRecord = GetDataRecordInternalKey();
@@ -100,29 +121,11 @@
             }
             catch (Exception e)
             {
-                //TODO: log error
+                LogObj.Error($"{e.GetType().Name}: error creating record", e);
                 return false;
             }
 
             return VerifyDataRecord(SongRecord);
-        }
-
-        public bool DeleteDataRecord()
-        {
-            try
-            {
-                LoadRecord();
-                Entity.Songs.Remove(SongRecord);
-
-                Entity.SaveChanges();
-            }
-            catch (Exception e)
-            {
-                //TODO: log error
-                return false;
-            }
-
-            return !VerifyDataRecord(SongRecord);
         }
 
         public Song InitializeDataRecord()
@@ -144,7 +147,7 @@
 
         public Song GetDataRecord(Func<Song, bool> match)
         {
-            return Entity.Songs.FirstOrDefault(match);
+            return Entity.Songs.Where(match).FirstOrDefault(x => !x.Deleted);
         }
 
         public Song GetDataRecordInternalKey()
@@ -161,6 +164,57 @@
         {
             var rec = GetDataRecord(x => x.SongId == SongId && x.SongKey == SongKey && x.SongName == SongName);
             return rec != null;
+        }
+
+        public bool MarkDataRecordDeleted()
+        {
+            try
+            {
+                LoadRecord();
+                SongRecord.Deleted = true;
+
+                Entity.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                LogObj.Error($"{e.GetType().Name}: error setting record as deleted", e);
+                return false;
+            }
+
+            return GetDeletedDataRecord(x => x.SongId == SongId && x.SongKey == SongKey && x.SongName == SongName) != null;
+        }
+
+        public Song GetDeletedDataRecord(Func<Song, bool> match)
+        {
+            return Entity.Songs.Where(match).FirstOrDefault(x => x.Deleted);
+        }
+
+        public Song GetDeletedDataRecordInternalKey()
+        {
+            return GetDeletedDataRecord(x => x.SongId == SongId);
+        }
+
+        public Song GetDeletedDataRecordExternalKey()
+        {
+            return GetDeletedDataRecord(x => x.SongKey == SongKey);
+        }
+
+        public bool DeleteDataRecord()
+        {
+            try
+            {
+                LoadRecord();
+                Entity.Songs.Remove(SongRecord);
+
+                Entity.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                LogObj.Error($"{e.GetType().Name}: error deleting data record", e);
+                return false;
+            }
+
+            return !VerifyDataRecord(SongRecord);
         }
         #endregion
         #region IJsonSerializable interface methods
